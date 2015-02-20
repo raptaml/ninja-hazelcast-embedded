@@ -40,14 +40,14 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class CacheHazelcastImpl implements Cache {
     private static final Logger LOG = LoggerFactory.getLogger(CacheHazelcastImpl.class);
-    private NinjaProperties ninjaProperties;
+    private final NinjaProperties ninjaProperties;
     
     private final String bindAdress;
     private final int bindPort;
     private final String groupName;
     private final String groupSecret;
     
-    private HazelcastInstance instance;
+    private final HazelcastInstance instance;
     private final Config config;
     private final NetworkConfig network;
     private final GroupConfig group;
@@ -60,16 +60,17 @@ public class CacheHazelcastImpl implements Cache {
     @Inject
     public CacheHazelcastImpl(NinjaProperties ninjaProperties) throws Exception {
         this.ninjaProperties = ninjaProperties;
-        
         this.bindAdress = ninjaProperties.getOrDie("ninja.hazelcast.interface_ip");
         this.bindPort = ninjaProperties.getIntegerOrDie("ninja.hazelcast.outbound_port");
         this.groupName = ninjaProperties.getOrDie("ninja.hazelcast.groupname");
         this.groupSecret = ninjaProperties.getOrDie("ninja.hazelcast.groupsecret");
                                 
         this.config = new Config();
-        network = new NetworkConfig().setInterfaces(
-                                                    new InterfacesConfig().addInterface(bindAdress))
+        network = new NetworkConfig().setInterfaces(new InterfacesConfig().clear()
+                                                                          .addInterface(bindAdress)
+                                                                          .setEnabled(true))
                                      .setPort(bindPort);
+        
         group = new GroupConfig(groupName, groupSecret);
         
         config.setNetworkConfig(network);
@@ -77,9 +78,7 @@ public class CacheHazelcastImpl implements Cache {
         
         this.instance = Hazelcast.newHazelcastInstance(config);
         
-        cache = instance.getMap("cache");
-        
-                
+        cache = instance.getMap("cache");            
     }
     
     
@@ -91,7 +90,7 @@ public class CacheHazelcastImpl implements Cache {
 
     @Override
     public boolean safeAdd(String key, Object value, int expiration) {
-        //API will return
+        
         try {
             if (!cache.tryLock(key, 2, TimeUnit.SECONDS)) {
                 return false;
@@ -102,8 +101,6 @@ public class CacheHazelcastImpl implements Cache {
         } finally {
             cache.unlock(key);
         }
-        
-        
     }
 
     @Override
@@ -126,12 +123,7 @@ public class CacheHazelcastImpl implements Cache {
             }
         } catch (Exception e) {
             return false;
-            
         }
-        //cache.set(key, value, expiration, TimeUnit.SECONDS);
-        //boolean DEBUG = (cache.containsKey(key) && cache.get(key).equals(value));
-        //return (cache.containsKey(key) && cache.get(key).equals(value));
-        
     }
 
     @Override
@@ -172,7 +164,6 @@ public class CacheHazelcastImpl implements Cache {
         return cache.getAll(new LinkedHashSet<>(Arrays.asList(keys)));
     }
 
-    //DEADLOCK WAITING POSSIBLE !!
     @Override
     public long incr(String key, int by) {
         if (!cache.tryLock(key)) {
@@ -190,9 +181,8 @@ public class CacheHazelcastImpl implements Cache {
         } finally {
             cache.unlock(key);
         }
- 
     }
-    //DEADLOCK WAITING POSSIBLE !!
+    
     @Override
     public long decr(String key, int by) {
         if (!cache.tryLock(key)) {

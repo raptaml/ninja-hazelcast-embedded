@@ -15,13 +15,8 @@
  */
 package de.raptaml.ninja.hazelcast.embedded;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import java.util.LinkedHashMap;
-import ninja.Configuration;
 import ninja.NinjaTest;
-import ninja.lifecycle.LifecycleSupport;
-import ninja.utils.NinjaConstant;
 import ninja.utils.NinjaMode;
 import ninja.utils.NinjaPropertiesImpl;
 import org.junit.After;
@@ -30,7 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.slf4j.Logger;
 
 
 
@@ -41,28 +35,16 @@ import org.slf4j.Logger;
 public class CacheHazelcastImplTest extends NinjaTest {
     
     NinjaPropertiesImpl ninjaProperties = new NinjaPropertiesImpl(NinjaMode.test);
-    Logger logger ;
     CacheHazelcastImpl cache;
-    static boolean run = false;
-      
+          
     @Before
     public void init() throws Exception{
-        
-            logger = getInjector().getInstance(Logger.class);
-            //ninjaProperties.setProperty(NinjaConstant.CACHE_IMPLEMENTATION, "de.raptaml.ninja.hazelcast.embedded.CacheHazelcastImpl");
-            //ninjaProperties.setProperty("ninja.hazelcast.interface_ip","127.0.0.1");
-            //ninjaProperties.setProperty("ninja.hazelcast.outbound_port","5701");
-            //ninjaProperties.setProperty("ninja.hazelcast.groupname", "group1");
-            //ninjaProperties.setProperty("ninja.hazelcast.groupsecret", "8df77g7fjkljr9ursamd034j");
-            
-            cache = getInjector().getInstance(CacheHazelcastImpl.class);
-        
-        
+        cache = getInjector().getInstance(CacheHazelcastImpl.class);
     }
     
     @After
     public void terminate() {
-      cache.destroyCacheService();
+        cache.destroyCacheService();
     }
    
     @Test
