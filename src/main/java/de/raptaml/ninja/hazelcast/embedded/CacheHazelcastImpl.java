@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import ninja.cache.Cache;
 import ninja.utils.NinjaProperties;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -38,15 +39,15 @@ import org.slf4j.Logger;
  */
 @Singleton
 public class CacheHazelcastImpl implements Cache {
-    private final Logger logger;
-    private final NinjaProperties ninjaProperties;
+    private static final Logger LOG = LoggerFactory.getLogger(CacheHazelcastImpl.class);
+    private NinjaProperties ninjaProperties;
     
     private final String bindAdress;
     private final int bindPort;
     private final String groupName;
     private final String groupSecret;
     
-    private final HazelcastInstance instance;
+    private HazelcastInstance instance;
     private final Config config;
     private final NetworkConfig network;
     private final GroupConfig group;
@@ -57,17 +58,14 @@ public class CacheHazelcastImpl implements Cache {
     
     
     @Inject
-    public CacheHazelcastImpl(final Logger logger,
-                              final NinjaProperties ninjaProperties) throws Exception {
+    public CacheHazelcastImpl(NinjaProperties ninjaProperties) throws Exception {
         this.ninjaProperties = ninjaProperties;
         
         this.bindAdress = ninjaProperties.getOrDie("ninja.hazelcast.interface_ip");
         this.bindPort = ninjaProperties.getIntegerOrDie("ninja.hazelcast.outbound_port");
         this.groupName = ninjaProperties.getOrDie("ninja.hazelcast.groupname");
         this.groupSecret = ninjaProperties.getOrDie("ninja.hazelcast.groupsecret");
-        
-        this.logger = logger;
-                
+                                
         this.config = new Config();
         network = new NetworkConfig().setInterfaces(
                                                     new InterfacesConfig().addInterface(bindAdress))

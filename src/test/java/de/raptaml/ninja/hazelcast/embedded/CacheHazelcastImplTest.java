@@ -41,22 +41,21 @@ import org.slf4j.Logger;
 public class CacheHazelcastImplTest extends NinjaTest {
     
     NinjaPropertiesImpl ninjaProperties = new NinjaPropertiesImpl(NinjaMode.test);
-    Injector injector = Guice.createInjector(new Configuration(ninjaProperties), LifecycleSupport.getModule());
-    Logger logger = injector.getInstance(Logger.class);
+    Logger logger ;
     CacheHazelcastImpl cache;
     static boolean run = false;
       
     @Before
     public void init() throws Exception{
         
-        
-            ninjaProperties.setProperty(NinjaConstant.CACHE_IMPLEMENTATION, "ninja.cache.CacheHazelcastImpl");
-            ninjaProperties.setProperty("ninja.hazelcast.interface_ip","127.0.0.1");
-            ninjaProperties.setProperty("ninja.hazelcast.outbound_port","5701");
-            ninjaProperties.setProperty("ninja.hazelcast.groupname", "group1");
-            ninjaProperties.setProperty("ninja.hazelcast.groupsecret", "8df77g7fjkljr9ursamd034j");
+            logger = getInjector().getInstance(Logger.class);
+            //ninjaProperties.setProperty(NinjaConstant.CACHE_IMPLEMENTATION, "de.raptaml.ninja.hazelcast.embedded.CacheHazelcastImpl");
+            //ninjaProperties.setProperty("ninja.hazelcast.interface_ip","127.0.0.1");
+            //ninjaProperties.setProperty("ninja.hazelcast.outbound_port","5701");
+            //ninjaProperties.setProperty("ninja.hazelcast.groupname", "group1");
+            //ninjaProperties.setProperty("ninja.hazelcast.groupsecret", "8df77g7fjkljr9ursamd034j");
             
-            cache = new CacheHazelcastImpl(logger, ninjaProperties);
+            cache = getInjector().getInstance(CacheHazelcastImpl.class);
         
         
     }
@@ -100,7 +99,7 @@ public class CacheHazelcastImplTest extends NinjaTest {
     public void testSafeSet() throws Exception {
         Assert.assertTrue(cache.safeSet("1", "String", 0));
         
-        final CacheHazelcastImpl cache2 = new CacheHazelcastImpl(logger, ninjaProperties);
+        final CacheHazelcastImpl cache2 = new CacheHazelcastImpl(ninjaProperties);
 
         //Spawn new thread for simulating foreign lock-holder
         Thread t = new Thread() {
@@ -138,7 +137,7 @@ public class CacheHazelcastImplTest extends NinjaTest {
         Assert.assertTrue(cache.safeReplace("1","REPLACED",0));
         Assert.assertFalse(cache.safeReplace("2","REPLACED",0));
                 
-        final CacheHazelcastImpl cache2 = new CacheHazelcastImpl(logger, ninjaProperties);
+        final CacheHazelcastImpl cache2 = new CacheHazelcastImpl(ninjaProperties);
         //Spawn new thread for simulating foreign lock-holder
         Thread t = new Thread() {
             @Override
@@ -200,7 +199,7 @@ public class CacheHazelcastImplTest extends NinjaTest {
         exception.expectMessage("Can only increment subtype of Long");
         cache.incr("counter", 1);
         
-        final CacheHazelcastImpl cache2 = new CacheHazelcastImpl(logger, ninjaProperties);
+        final CacheHazelcastImpl cache2 = new CacheHazelcastImpl(ninjaProperties);
         cache.set("counter", counter, 0);
         Thread t = new Thread() {
             @Override
@@ -244,7 +243,7 @@ public class CacheHazelcastImplTest extends NinjaTest {
         cache.decr("counter", 1);
         
         
-        final CacheHazelcastImpl cache2 = new CacheHazelcastImpl(logger, ninjaProperties);
+        final CacheHazelcastImpl cache2 = new CacheHazelcastImpl(ninjaProperties);
         cache.set("counter", counter, 0);
         Thread t = new Thread() {
             @Override
@@ -287,7 +286,7 @@ public class CacheHazelcastImplTest extends NinjaTest {
         cache.set("1", "String", 0);
         Assert.assertTrue(cache.safeDelete("1"));
         
-        final CacheHazelcastImpl cache2 = new CacheHazelcastImpl(logger, ninjaProperties);
+        final CacheHazelcastImpl cache2 = new CacheHazelcastImpl(ninjaProperties);
         cache.set("1", "String", 0);
         Thread t = new Thread() {
             @Override
