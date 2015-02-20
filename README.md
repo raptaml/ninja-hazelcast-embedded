@@ -5,7 +5,7 @@ Its structure is somehow based on [svenkubiaks][1] excellent MongoDB module and 
 ## Purpose
 Ninja allready gives you two fine implementations for ehcache and memcached client.  
 But in some use cases you might consider the following setup for your horizontally scalable app:  
-
+![alt tag](https://github.com/raptaml/ninja-hazelcast-embedded/blob/master/hazelcast.png)
 
 
 
