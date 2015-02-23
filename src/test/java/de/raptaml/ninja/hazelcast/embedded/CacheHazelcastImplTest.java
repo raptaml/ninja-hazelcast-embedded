@@ -19,7 +19,6 @@ import java.util.LinkedHashMap;
 import ninja.NinjaTest;
 import ninja.utils.NinjaMode;
 import ninja.utils.NinjaPropertiesImpl;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,11 +41,6 @@ public class CacheHazelcastImplTest extends NinjaTest {
         cache = getInjector().getInstance(CacheHazelcastImpl.class);
     }
     
-    @After
-    public void terminate() {
-        cache.destroyCacheService();
-    }
-   
     @Test
     public void testAdd() {
         cache.add("1", "String", 0);

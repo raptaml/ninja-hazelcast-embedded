@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import ninja.cache.Cache;
+import ninja.lifecycle.Dispose;
 import ninja.utils.NinjaProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,6 +216,14 @@ public class CacheHazelcastImpl implements Cache {
     @Override
     public boolean safeDelete(String key) {
         return cache.tryRemove(key, 2, TimeUnit.SECONDS);
+    }
+    
+    @Dispose
+    public void stop() {
+        if (instance != null) {
+            this.instance.shutdown();
+        }
+        
     }
     
      //Methods for testing purposes. Not exposed via Interface
