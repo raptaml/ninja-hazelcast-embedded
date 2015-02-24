@@ -24,7 +24,12 @@ You dont want wild spreading cache cluster? No problem. Just configure the group
 ninja.hazelcast.groupname=group1
 ninja.hazelcast.groupsecret=toBeChanged
 ```
+Now you can separate the caches from each other even if you are running them in the same address range.  
 
+**!! Please note !!**  
+You should really not run your cache on interfaces/addresses which are publicly available. Even if you have a group config in place, which is mandatory for this plugin, you should run your cache on interfcaces connected to a separate and firewalled subnet.
+Unfortunately hazelcast supports TLS and fine granular access control only in enterprise version at the moment.
+Keep that in mind when designing your application.
 
 
 
