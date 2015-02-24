@@ -58,5 +58,10 @@
             <version>3.4</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ninja-hazelcast-embedded</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
