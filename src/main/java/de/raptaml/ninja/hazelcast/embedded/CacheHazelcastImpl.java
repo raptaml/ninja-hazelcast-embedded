@@ -1,4 +1,6 @@
 /*
+ * Hazelcast implementation
+
  * Copyright 2015 Matthias Lemmer.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +14,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
+ *
+ * <p>Hazelcast is an open source, in-memory data grid usable for a wide varity of different scenarios.
+ * This implementation covers the following scenario but explicitly decoupled from servlet session handling:
+ * @see http://hazelcast.com/use-cases/web-session-clustering/generic-web-session-replication
+ * 
+ *
  */
 package de.raptaml.ninja.hazelcast.embedded;
 
@@ -55,9 +64,11 @@ public class CacheHazelcastImpl implements Cache {
     
     private final IMap<String, Object> cache;
     
-      
-    
-    
+    /**
+     *
+     * @param ninjaProperties of current environment
+     * @throws Exception
+     */
     @Inject
     public CacheHazelcastImpl(NinjaProperties ninjaProperties) throws Exception {
         this.ninjaProperties = ninjaProperties;
@@ -82,13 +93,24 @@ public class CacheHazelcastImpl implements Cache {
         cache = instance.getMap("cache");            
     }
     
-    
-
+    /**
+     * 
+     * @param key
+     * @param value
+     * @param expiration
+     */
     @Override
     public void add(String key, Object value, int expiration) {
         cache.putIfAbsent(key, value, expiration, TimeUnit.SECONDS);
     }
 
+    /**
+     *
+     * @param key
+     * @param value
+     * @param expiration
+     * @return
+     */
     @Override
     public boolean safeAdd(String key, Object value, int expiration) {
         
@@ -104,11 +126,24 @@ public class CacheHazelcastImpl implements Cache {
         }
     }
 
+    /**
+     *
+     * @param key
+     * @param value
+     * @param expiration
+     */
     @Override
     public void set(String key, Object value, int expiration) {
         cache.set(key, value, expiration, TimeUnit.SECONDS);
     }
 
+    /**
+     *
+     * @param key
+     * @param value
+     * @param expiration
+     * @return
+     */
     @Override
     public boolean safeSet(String key, Object value, int expiration) {
         
@@ -127,6 +162,12 @@ public class CacheHazelcastImpl implements Cache {
         }
     }
 
+    /**
+     *
+     * @param key
+     * @param value
+     * @param expiration
+     */
     @Override
     public void replace(String key, Object value, int expiration) {
         if (cache.containsKey(key)) {
@@ -134,6 +175,13 @@ public class CacheHazelcastImpl implements Cache {
         }
     }
      
+    /**
+     *
+     * @param key
+     * @param value
+     * @param expiration
+     * @return
+     */
     @Override
     public boolean safeReplace(String key, Object value, int expiration) {
         try {
@@ -155,16 +203,32 @@ public class CacheHazelcastImpl implements Cache {
         }
     }
 
+    /**
+     *
+     * @param key
+     * @return
+     */
     @Override
     public Object get(String key) {
         return cache.get(key);
     }
 
+    /**
+     *
+     * @param keys
+     * @return
+     */
     @Override
     public Map<String, Object> get(String[] keys) {
         return cache.getAll(new LinkedHashSet<>(Arrays.asList(keys)));
     }
 
+    /**
+     *
+     * @param key
+     * @param by
+     * @return
+     */
     @Override
     public long incr(String key, int by) {
         if (!cache.tryLock(key)) {
@@ -184,6 +248,12 @@ public class CacheHazelcastImpl implements Cache {
         }
     }
     
+    /**
+     *
+     * @param key
+     * @param by
+     * @return
+     */
     @Override
     public long decr(String key, int by) {
         if (!cache.tryLock(key)) {
@@ -203,21 +273,36 @@ public class CacheHazelcastImpl implements Cache {
         }
     }
 
+    /**
+     *
+     */
     @Override
     public void clear() {
         cache.clear();
     }
 
+    /**
+     *
+     * @param key
+     */
     @Override
     public void delete(String key) {
         cache.delete(key);
     }
 
+    /**
+     *
+     * @param key
+     * @return
+     */
     @Override
     public boolean safeDelete(String key) {
         return cache.tryRemove(key, 2, TimeUnit.SECONDS);
     }
     
+    /**
+     *
+     */
     @Dispose
     public void stop() {
         if (instance != null) {
@@ -227,12 +312,27 @@ public class CacheHazelcastImpl implements Cache {
     }
     
      //Methods for testing purposes. Not exposed via Interface
-    public void destroyCacheService() {
+
+    /**
+     * Shuts down the hazelcast instance
+     */
+        public void destroyCacheService() {
         this.instance.shutdown();
     }
+
+    /**
+     * Locks an entry with a specified key
+     * @param key Element
+     * @param seconds time to lock in seconds
+     */
     public void lock(String key, long seconds) {
         cache.lock(key,seconds,TimeUnit.SECONDS);
     }
+
+    /**
+     * Unlocks an entry with a specified key
+     * @param key Element
+     */
     public void unlock(String key) {
         cache.unlock(key);
     }
