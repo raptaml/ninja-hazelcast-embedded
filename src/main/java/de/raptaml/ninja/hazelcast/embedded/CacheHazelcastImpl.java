@@ -87,6 +87,7 @@ public class CacheHazelcastImpl implements Cache {
         
         config.setNetworkConfig(network);
         config.setGroupConfig(group);
+        config.setProperty( "hazelcast.socket.bind.any", "false" );
         
         this.instance = Hazelcast.newHazelcastInstance(config);
         
