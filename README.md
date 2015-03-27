@@ -1,3 +1,5 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.raptaml/ninja-hazelcast-embedded/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.raptaml/ninja-hazelcast-embedded)
+
 # ninja-hazelcast-embedded
 
 This is an implementation of Ninja Frameworks Cache interface for [hazelcast][2].  
