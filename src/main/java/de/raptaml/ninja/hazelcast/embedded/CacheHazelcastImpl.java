@@ -29,7 +29,10 @@ import com.google.inject.Singleton;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.InterfacesConfig;
+import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.MulticastConfig;
 import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -54,6 +57,7 @@ public class CacheHazelcastImpl implements Cache {
     
     private final String bindAdress;
     private final int bindPort;
+    private final String multicastAddress;
     private final String groupName;
     private final String groupSecret;
     
@@ -74,6 +78,7 @@ public class CacheHazelcastImpl implements Cache {
         this.ninjaProperties = ninjaProperties;
         this.bindAdress = ninjaProperties.getOrDie("ninja.hazelcast.interface_ip");
         this.bindPort = ninjaProperties.getIntegerOrDie("ninja.hazelcast.outbound_port");
+        this.multicastAddress = ninjaProperties.getWithDefault("ninja.hazelcast.multicast_address","224.0.0.1");
         this.groupName = ninjaProperties.getOrDie("ninja.hazelcast.groupname");
         this.groupSecret = ninjaProperties.getOrDie("ninja.hazelcast.groupsecret");
                                 
@@ -82,9 +87,11 @@ public class CacheHazelcastImpl implements Cache {
                                                                           .addInterface(bindAdress)
                                                                           .setEnabled(true))
                                      .setPort(bindPort);
+        JoinConfig joinConfig = new JoinConfig().setMulticastConfig(new MulticastConfig().setEnabled(true).setMulticastGroup(multicastAddress));
+        network.setJoin(joinConfig);
         
         group = new GroupConfig(groupName, groupSecret);
-        
+             
         config.setNetworkConfig(network);
         config.setGroupConfig(group);
         config.setProperty( "hazelcast.socket.bind.any", "false" );
