@@ -20,6 +20,10 @@ Specify the interface and port on which hazelcast should be listening for incomi
 ninja.hazelcast.interface_ip=127.0.0.1
 ninja.hazelcast.outbound_port=5701
 ```
+In addition you should specify the multicast address which this cluster member should join:
+```
+ninja.hazelcast.multicast_address=239.255.10.1
+```
 So you get a fail-safe, reliable cache which grows with every Ninja instance serving your application.  
 You dont want wild spreading cache cluster? No problem. Just configure the group settings in your application.conf like so:  
 ```
